@@ -1,0 +1,23 @@
+# Ignore virtual environments
+env/
+.venv/
+myenv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+
+# Jupyter Notebook hidden files
+*.checkpoint.ipynb
+
+# VS Code and Jupyter config
+.vscode/
+.env
+.DS_Store
+
+# Ignore large data files
+*.csv
+*.h5
+*.zip
+*.tar.gz
+*.pkl
+*.joblib
