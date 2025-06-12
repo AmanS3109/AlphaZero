@@ -33,15 +33,7 @@ A from-scratch implementation of AlphaZero, showcasing powerful tree search and 
 ## 📂 Project Structure
 
 ```bash
-alphazero/
-│
-├── agents/              # MCTS and AlphaMCTS (standard + parallel)
-├── games/               # TicTacToe and ConnectFour logic
-├── model/               # ResNet model using PyTorch
-├── self_play/           # Self-play and training loop
-├── ui/                  # Simple game UIs for human-vs-AI
-├── evaluation/          # Evaluation scripts (including Kaggle Env)
-├── utils/               # Helper functions
-├── notebooks/           # Jupyter notebooks for training logs, experiments
-├── requirements.txt
+.
+├── main.ipynb           # All code: game logic, MCTS, model, training, UI
+├── requirements.txt     # Dependencies
 └── README.md
