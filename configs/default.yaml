@@ -1,0 +1,32 @@
+# ──────────────────────────────────────────────
+# AlphaZero Default Configuration
+# ──────────────────────────────────────────────
+
+# Game to train on: "tictactoe" or "connect_four"
+game: tictactoe
+
+# ── Model ──
+model:
+  num_resBlocks: 4
+  num_hidden: 64
+
+# ── MCTS ──
+mcts:
+  C: 2                       # PUCT exploration constant
+  num_searches: 60           # Simulations per move
+  dirichlet_epsilon: 0.25    # Noise weight for root exploration
+  dirichlet_alpha: 0.3       # Dirichlet noise concentration
+
+# ── Training ──
+training:
+  num_iterations: 3          # Full learn cycles
+  num_selfPlay_iterations: 500
+  num_parallel_games: 100    # Games per batch (parallel mode)
+  num_epochs: 4              # Epochs per iteration
+  batch_size: 64
+  temperature: 1.25          # Action sampling temperature
+  lr: 0.001                  # Learning rate
+  weight_decay: 0.0001
+
+# ── Paths ──
+checkpoint_dir: checkpoints

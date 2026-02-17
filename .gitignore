@@ -1,23 +1,50 @@
-# Ignore virtual environments
-env/
-.venv/
-myenv/
+# Python
 __pycache__/
-.ipynb_checkpoints/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Jupyter Notebook hidden files
-*.checkpoint.ipynb
-
-# VS Code and Jupyter config
-.vscode/
+# Environment
 .env
-.DS_Store
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+myenv/
 
-# Ignore large data files
-*.csv
-*.h5
-*.zip
-*.tar.gz
-*.pkl
-*.joblib
+# PyInstaller
+*.manifest
+*.spec
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# Checkpoints (large binary files)
+# checkpoints/
+# Remove the above comment if you WANT to commit your model weights
+# But generally avoid committing large files to git without LFS
+
+# Logs
+*.log
