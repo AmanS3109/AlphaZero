@@ -16,6 +16,8 @@ import numpy as np
 import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from api.schemas import (
     HealthResponse,
@@ -54,14 +56,24 @@ MODELS: dict[str, ResNet] = {}  # game_name → loaded model
 
 # Config via env vars (or defaults)
 CHECKPOINT_DIR = os.environ.get("CHECKPOINT_DIR", "checkpoints")
-NUM_RESBLOCKS = int(os.environ.get("NUM_RESBLOCKS", "4"))
-NUM_HIDDEN = int(os.environ.get("NUM_HIDDEN", "64"))
+
+
+def _infer_architecture(state_dict: dict) -> tuple[int, int]:
+    """Infer num_resBlocks and num_hidden from a checkpoint state dict."""
+    # num_hidden = output channels of the start block conv layer
+    num_hidden = state_dict["startBlock.0.weight"].shape[0]
+    # num_resBlocks = number of backbone entries (each has conv1.weight)
+    num_resblocks = sum(
+        1 for k in state_dict if k.endswith(".conv1.weight") and k.startswith("backBone.")
+    )
+    return num_resblocks, num_hidden
 
 
 def load_model_for_game(game_name: str) -> ResNet | None:
     """
     Attempt to load the latest checkpoint for a game.
     Looks for model_*.pt files in checkpoints/<game_name>/.
+    Auto-detects architecture (resblocks, hidden channels) from the checkpoint.
     """
     ckpt_dir = Path(CHECKPOINT_DIR) / game_name
     if not ckpt_dir.exists():
@@ -75,9 +87,13 @@ def load_model_for_game(game_name: str) -> ResNet | None:
     latest = model_files[-1]
     logger.info(f"Loading {game_name} model from {latest}")
 
+    state_dict = torch.load(latest, map_location=DEVICE)
+    num_resblocks, num_hidden = _infer_architecture(state_dict)
+    logger.info(f"  Architecture: {num_resblocks} resblocks, {num_hidden} hidden")
+
     game = get_game(game_name)
-    model = ResNet(game, NUM_RESBLOCKS, NUM_HIDDEN, device=DEVICE)
-    model.load_state_dict(torch.load(latest, map_location=DEVICE))
+    model = ResNet(game, num_resblocks, num_hidden, device=DEVICE)
+    model.load_state_dict(state_dict)
     model.eval()
     return model
 
@@ -99,6 +115,12 @@ def startup():
     if not MODELS:
         logger.warning("No models loaded! API will return errors for /predict and /move.")
 
+    # Mount frontend static files (after all API routes are registered)
+    frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
+    if frontend_dir.exists():
+        app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+        logger.info(f"  ✓ Frontend served from {frontend_dir}")
+
 
 # ── Endpoints ────────────────────────────────────
 
@@ -113,6 +135,23 @@ def list_games():
     return {
         name: {"loaded": name in MODELS}
         for name in GAME_REGISTRY
+    }
+
+
+@app.get("/new-game/{game_name}")
+def new_game(game_name: str):
+    """Return the initial empty board and valid moves for a game."""
+    if game_name not in GAME_REGISTRY:
+        raise HTTPException(404, f"Unknown game '{game_name}'")
+    game = get_game(game_name)
+    board = game.get_initial_state()
+    valid = game.get_valid_moves(board)
+    return {
+        "board": board.tolist(),
+        "valid_moves": valid.tolist(),
+        "rows": game.row_count,
+        "cols": game.column_count,
+        "action_size": game.action_size,
     }
 
 

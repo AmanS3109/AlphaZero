@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AlphaZero Arena — Play Against AI</title>
+    <meta name="description" content="Play Tic-Tac-Toe and Connect Four against an AlphaZero-trained neural network with Monte Carlo Tree Search." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- ───── Background particles ───── -->
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <!-- ───── Game Selector Screen ───── -->
+    <section id="selectorScreen" class="screen active">
+        <div class="selector-container">
+            <h1 class="logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">AlphaZero <span class="accent">Arena</span></span>
+            </h1>
+            <p class="tagline">Challenge a neural network trained with self-play &amp; MCTS</p>
+
+            <div class="game-cards">
+                <button class="game-card" data-game="tictactoe" id="cardTictactoe">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">✕◯</div>
+                        <h2>Tic-Tac-Toe</h2>
+                        <p>Classic 3×3 — can you beat perfect play?</p>
+                        <div class="card-meta">3×3 board · 9 actions</div>
+                    </div>
+                </button>
+                <button class="game-card" data-game="connect_four" id="cardConnectFour">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <div class="card-icon">🔴🟡</div>
+                        <h2>Connect Four</h2>
+                        <p>Drop pieces, connect 4 in a row to win</p>
+                        <div class="card-meta">6×7 board · 7 columns</div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="settings-row">
+                <label for="difficultySelect">Difficulty</label>
+                <select id="difficultySelect">
+                    <option value="25">Easy (25 searches)</option>
+                    <option value="100" selected>Medium (100 searches)</option>
+                    <option value="400">Hard (400 searches)</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── Game Screen ───── -->
+    <section id="gameScreen" class="screen">
+        <header class="game-header">
+            <button id="btnBack" class="btn-icon" title="Back to menu">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M13 16L7 10L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <h2 id="gameTitle" class="game-title">Tic-Tac-Toe</h2>
+            <div class="scoreboard">
+                <span class="score you" id="scoreYou" title="Your wins">0</span>
+                <span class="score-sep">:</span>
+                <span class="score ai" id="scoreAI" title="AI wins">0</span>
+                <span class="score draw" id="scoreDraw" title="Draws">(0)</span>
+            </div>
+        </header>
+
+        <!-- Status bar -->
+        <div class="status-bar" id="statusBar">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span id="statusText">Your turn — click to place</span>
+        </div>
+
+        <!-- Board container -->
+        <div class="board-wrapper">
+            <div id="boardContainer" class="board-container"></div>
+            <!-- Connect Four column hover indicators -->
+            <div id="columnIndicators" class="column-indicators hidden"></div>
+        </div>
+
+        <!-- AI Confidence chart -->
+        <div class="confidence-section" id="confidenceSection">
+            <h3 class="confidence-title">AI Confidence</h3>
+            <div class="confidence-chart" id="confidenceChart"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="game-actions">
+            <button id="btnNewGame" class="btn btn-primary">New Game</button>
+            <select id="gameDifficulty" class="inline-select">
+                <option value="25">Easy</option>
+                <option value="100" selected>Medium</option>
+                <option value="400">Hard</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- ───── Result Overlay ───── -->
+    <div id="resultOverlay" class="result-overlay hidden">
+        <div class="result-card">
+            <div class="result-emoji" id="resultEmoji">🏆</div>
+            <h2 id="resultTitle">You Win!</h2>
+            <p id="resultDesc">Impressive — you outplayed the neural network.</p>
+            <button id="btnPlayAgain" class="btn btn-primary">Play Again</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
