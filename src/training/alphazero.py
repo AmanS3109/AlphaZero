@@ -110,10 +110,11 @@ class AlphaZero:
             loss.backward()
             self.optimizer.step()
 
-    def learn(self) -> None:
+    def learn(self, start_iteration: int = 0) -> None:
         """Full AlphaZero training loop: self-play → train → checkpoint."""
-        for iteration in range(self.args["num_iterations"]):
-            logger.info(f"Iteration {iteration + 1}/{self.args['num_iterations']}")
+        total = self.args["num_iterations"]
+        for iteration in range(start_iteration, start_iteration + total):
+            logger.info(f"Iteration {iteration + 1}/{start_iteration + total}")
 
             # Self-play
             memory = []
@@ -222,10 +223,11 @@ class AlphaZeroParallel:
             loss.backward()
             self.optimizer.step()
 
-    def learn(self) -> None:
+    def learn(self, start_iteration: int = 0) -> None:
         """Full parallel AlphaZero training loop."""
-        for it in range(self.args["num_iterations"]):
-            logger.info(f"Iteration {it + 1}/{self.args['num_iterations']}")
+        total = self.args["num_iterations"]
+        for it in range(start_iteration, start_iteration + total):
+            logger.info(f"Iteration {it + 1}/{start_iteration + total}")
 
             # Self-play
             self.model.eval()

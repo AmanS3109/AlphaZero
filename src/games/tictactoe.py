@@ -5,7 +5,7 @@ from src.games.base import Game
 
 
 class TicTacToe(Game):
-    """Standard 3×3 Tic-Tac-Toe. Player 1 = +1, Player 2 = -1."""
+    """Standard 3x3 Tic-Tac-Toe. Player 1 = +1, Player 2 = -1."""
 
     def __init__(self):
         self.row_count = 3

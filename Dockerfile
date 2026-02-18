@@ -17,6 +17,8 @@ COPY src/ src/
 COPY api/ api/
 COPY configs/ configs/
 COPY checkpoints/ checkpoints/
+COPY play.py .
+COPY train.py .
 
 # Expose API port
 EXPOSE 8000

@@ -40,6 +40,7 @@ def main():
     parser.add_argument("--game", type=str, default=None, help="Override game (tictactoe, connect_four)")
     parser.add_argument("--parallel", action="store_true", help="Use parallel self-play")
     parser.add_argument("--resume", type=str, default=None, help="Path to model checkpoint to resume from")
+    parser.add_argument("--start-iteration", type=int, default=0, help="Iteration to resume from (e.g. 3 to continue after model_2)")
     args = parser.parse_args()
 
     # Load config
@@ -63,7 +64,7 @@ def main():
     )
 
     if args.resume:
-        logger.info(f"Resuming from checkpoint: {args.resume}")
+        logger.info(f"Resuming model from: {args.resume}")
         model.load_state_dict(torch.load(args.resume, map_location=device))
 
     train_cfg = config.get("training", {})
@@ -72,6 +73,15 @@ def main():
         lr=train_cfg.get("lr", 0.001),
         weight_decay=train_cfg.get("weight_decay", 0.0001),
     )
+
+    # Auto-load optimizer state if resuming
+    if args.resume:
+        optim_path = Path(args.resume.replace("model_", "optim_"))
+        if optim_path.exists():
+            logger.info(f"Resuming optimizer from: {optim_path}")
+            optimizer.load_state_dict(torch.load(optim_path, map_location=device))
+        else:
+            logger.warning(f"No matching optimizer checkpoint found at {optim_path}, using fresh optimizer")
 
     # Build args dict for AlphaZero
     mcts_cfg = config.get("mcts", {})
@@ -91,6 +101,9 @@ def main():
     checkpoint_dir = Path(config.get("checkpoint_dir", "checkpoints")) / game_name
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
+    start_iteration = args.start_iteration
+    logger.info(f"Starting from iteration: {start_iteration}")
+
     # Train
     if args.parallel:
         logger.info("Using AlphaZeroParallel (batched self-play)")
@@ -100,7 +113,7 @@ def main():
         trainer = AlphaZero(model, optimizer, game, az_args, str(checkpoint_dir))
 
     start = time.time()
-    trainer.learn()
+    trainer.learn(start_iteration=start_iteration)
     elapsed = time.time() - start
 
     logger.info(f"Training complete in {elapsed:.1f}s ({elapsed / 60:.1f}m)")
